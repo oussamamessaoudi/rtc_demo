@@ -1,26 +1,49 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React, {Component} from 'react';
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+class App extends Component {
+
+  constructor(props) {
+    super(props);
+    App.hasUserMedia.bind(this);
+
+    this.state={
+      localStream : null
+    }
+  }
+
+
+  static hasUserMedia() {
+    navigator.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia
+      || navigator.mozGetUserMedia || navigator.msGetUserMedia;
+
+    return navigator.getUserMedia;
+  }
+
+  componentDidMount() {
+    if (App.hasUserMedia()) {
+      navigator.getUserMedia({ video: true, audio: true },
+         (stream) => this.setState({localStream : stream}),
+          error => console.log(error) );
+    }
+    else {
+      alert("Error. WebRTC is not supported!");
+    }
+  }
+
+
+  render() {
+    return (
+      <div className="App">
+        <video autoPlay ref={
+          video => {
+            if(video){
+              video.srcObject = this.state.localStream
+            }
+          }
+        }/>
+      </div>
+    );
+  }
 }
 
 export default App;
